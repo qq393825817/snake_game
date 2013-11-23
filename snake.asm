@@ -5,7 +5,7 @@ data segment
     attr2       db    0Eh                            ; the color of '#', red           green    |
 	attr3       db    04h							 ;                                          |
 	attr4       db    0Ah                            ;                                          | 
-    show00      db           "************************************************************$";   |
+    show00      db              "************************************************************$";   |
     show01      db    0ah, 0dh, "*                   This is a snake game                   *$";|
     show02      db    0ah, 0dh, "************************************************************$";|
     show03      db    0ah, 0dh, "                                                            $";|
@@ -25,16 +25,15 @@ data segment
     show17      db    0ah, 0dh, "*            *  #                                          #$";|
     show18      db    0ah, 0dh, "**************  ############################################$";|
 ;------------------------------------------------------------------------------------------------
-	
 ;这个表示食物出现的区域，表示一个数组
-	food_locate dw   0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
-;0表示一直暂停下去，正数表示暂停的时间
-	time        db    0
+	food_locate dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
+;9表示暂停0.5秒，18暂停1秒，36表示暂停2秒
+	didas        db    72
 ;0表示没有结束，1表示死亡，2表示程序退出，3表示胜利
 	game_over   db    0
 ;表示所得分数
 	value_cx    db    (?)
-	score       dw    343
+	score       dw    0
 	char_score  db    0,0,0
 ;0表示蛇已经死了，1表示还活着
 	snake_alive db    1
@@ -70,7 +69,7 @@ start:
 	mov sp, 800h
 	call clear
 	call display
-	call pause_game
+	call wait_game
 	call clear
 	call init_menu
 	call ingame	
@@ -79,9 +78,21 @@ start:
 	mov ax,4c00h
 	int 21h
 ;--------------------------------------------------
-;pause the game,the time save in time
-pause_game:
-	
+;wait the game,the times save in didas
+wait_game:
+	mov bx,offset didas
+	xor ax,ax
+	int 1ah
+	mov si,dx
+	mov di,cx
+time_out:
+	xor ax,ax
+	int 1ah
+	sub dx,si
+	sbb cx,di
+	cmp dx,[bx]
+	jb time_out
+
 	ret 
 ;--------------------------------------------------
 ;初始化游戏
@@ -139,7 +150,6 @@ loop0:
 ;--------------------------------------------------
 ;开始游戏
 ingame:
-;	call food_create
 	;call is_alive
 	;mov bx,offset snake_alive
 	;mov dl,[bx]
@@ -151,7 +161,7 @@ ingame:
 	;mov dl,[bx]
 	;cmp dl,0
 	;je continue
-	call scores_increase
+	;call scores_increase
 ;continue:
 ;	jmp ingame
 ;end_ingame:
