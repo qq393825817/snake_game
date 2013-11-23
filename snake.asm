@@ -24,6 +24,25 @@ data segment
     show16      db    0ah, 0dh, "*            *  #                                          #$";|
     show17      db    0ah, 0dh, "*            *  #                                          #$";|
     show18      db    0ah, 0dh, "**************  ############################################$";|
+    snake00     db              "************************************************************$";|
+    snake01     db    0ah, 0dh, "*                  Welcome to Snake Game                   *$";| 
+    snake02     db    0ah, 0dh, "************************************************************$";|
+    snake03     db    0ah, 0dh, "#           /^\/^\                                         #$";|
+    snake04     db    0ah, 0dh, "#        _|_o_|_o_|                                        #$";|
+    snake05     db    0ah, 0dh, "#  \/   /~        \_/ \                                    #$";|
+    snake06     db    0ah, 0dh, "# \___|__________/  \   \                                  #$";|
+    snake07     db    0ah, 0dh, "#          \_____ _      \                                 #$";|
+    snake08     db    0ah, 0dh, "#                   \    |      ~_ ~     \ ~               #$";|
+    snake09     db    0ah, 0dh, "#                    |   /    /  _   \    \  \             #$";|
+    snake10     db    0ah, 0dh, "#                   /  /    /  /  \   \    \   \           #$";|
+    snake11     db    0ah, 0dh, "#                  /  /   /  /     \   \    \    |         #$";|
+    snake12     db    0ah, 0dh, "#                 /  /  /  /       |   |     |   /         #$";|
+    snake13     db    0ah, 0dh, "#                |  \__/  /         \   \ ~ /   /          #$";|
+    snake14     db    0ah, 0dh, "#                ~______~             ~____~__/            #$";|
+    snake15     db    0ah, 0dh, "************************************************************$";|
+    snake16     db    0ah, 0dh, "* please to choose the level:                              *$";|
+    snake17     db    0ah, 0dh, "*          1.low        2.middle       3.high              *$";|
+    snake18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
 ;这个表示食物出现的区域，表示一个数组
 	food_locate dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
@@ -318,28 +337,68 @@ blank:
 ;--------------------------------------------------
 ;显示信息	
 display:
-	mov ax,0b872h
-	mov es,ax
-	mov cx,5
-	mov ah,02h
-	mov bx,0
-dis1:
-	mov si,0
-dis2:
-	mov al,[bx]
-	cmp al,'$'
-	je enddis
-	mov es:[si],al
-	mov es:[si+1],ah
+        mov ax, data
+        mov ds, ax
+
+        mov ax, stack
+        mov ss, ax
+
+        mov cx, 13h
+
+        mov sp, 800h
+        mov ax, 0b81fh
+        mov es, ax	
+	
+        mov bx, offset snake00
+row1:
+        push cx
+        mov cx, 60
+        mov si, 0h
+col1:
+	mov al, [bx]
+	mov es:[si], al
+
+	cmp al, 2ah  
+	je color11
+	
+	cmp al, 23h
+	je color21
+	
+	jmp color31
+
+color11:
+	mov di, 0h
+	jmp loop01
+
+color21:
+	mov di, 1h
+	jmp loop01
+
+color31:
+	mov di, 2h
+	jmp loop01
+
+color41:
+	mov di, 3h
+
+loop01:
+	mov ah, [di]
+	mov es:[si + 1], ah
 	inc bx
-	add si,2
-	jmp dis2
-enddis:
-	mov ax,es
-	inc bx
-	add ax,0ah
-	mov es,ax
-	loop dis1
+	add si, 2
+	loop col1
+	pop cx
+
+	mov ax, es
+	add ax, 0ah
+	mov es, ax
+	add bx, 3
+	loop row1
+
+	mov ah, 01h
+	int 21h
+	sub al, 30h
+
 	ret
 ;清屏和初始化蛇和食物
 ;--------------------------------------------------
