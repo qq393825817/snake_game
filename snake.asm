@@ -10,10 +10,10 @@ data segment
     show02      db    0ah, 0dh, "************************************************************$";|
     show03      db    0ah, 0dh, "                                                            $";|
     show04      db    0ah, 0dh, "**************  ############################################$";|
-    show05      db    0ah, 0dh, "* sorce:___  *  #                                          #$";|
+    show05      db    0ah, 0dh, "* sorce:000  *  #                                          #$";|
     show06      db    0ah, 0dh, "*            *  #                                          #$";|
     show07      db    0ah, 0dh, "*            *  #                                          #$";|
-    show08      db    0ah, 0dh, "* level:___  *  #                                          #$";|
+    show08      db    0ah, 0dh, "* level:0    *  #                                          #$";|
     show09      db    0ah, 0dh, "*            *  #                                          #$";|
     show10      db    0ah, 0dh, "*            *  #          @->                             #$";|
     show11      db    0ah, 0dh, "* operate:   *  #                                          #$";|
@@ -33,7 +33,9 @@ data segment
 ;0表示没有结束，1表示死亡，2表示程序退出，3表示胜利
 	game_over   db    0
 ;表示所得分数
-	score       db    0
+	value_cx    db    (?)
+	score       dw    343
+	char_score  db    0,0,0
 ;0表示蛇已经死了，1表示还活着
 	snake_alive db    1
 ;food_x表示列，food_y表示行
@@ -137,7 +139,7 @@ loop0:
 ;--------------------------------------------------
 ;开始游戏
 ingame:
-	call food_create
+;	call food_create
 	;call is_alive
 	;mov bx,offset snake_alive
 	;mov dl,[bx]
@@ -149,7 +151,7 @@ ingame:
 	;mov dl,[bx]
 	;cmp dl,0
 	;je continue
-	;call scores_increase
+	call scores_increase
 ;continue:
 ;	jmp ingame
 ;end_ingame:
@@ -161,8 +163,47 @@ ingame:
 ;--------------------------------------------------
 ;分数增加
 scores_increase:
-
+	mov bx,offset score
+	mov ax,[bx]
+	inc ax
+	mov [bx],ax
+	mov ax,0b852h
+	mov es,ax
+	mov si,4
+	call trans_char 
+	mov bx,offset value_cx
+	mov cl,[bx]
+	mov ch,0
+	mov bx,offset char_score
+increase:
+	mov al,[bx]
+	inc bx
+	mov es:[si],al
+	sub si,2
+	loop increase
 	call food_create
+	ret
+;--------------------------------------------------
+;将十进制数转化为字符型
+trans_char:
+	mov bx,offset score
+	mov ax,[bx]
+	mov dl,10
+	mov cl,0
+	mov bx,offset char_score
+trans_loop:
+	cmp ax,0
+	je trans_end
+	div dl
+	add ah,30h
+	mov [bx],ah
+	inc bx
+	inc cl
+	mov ah,0
+	jmp trans_loop
+trans_end:
+	mov bx,offset value_cx
+	mov [bx],cl
 	ret
 
 ;--------------------------------------------------
