@@ -48,6 +48,10 @@ data segment
 	food_locate dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
 ;9表示暂停0.5秒，18暂停1秒，36表示暂停2秒
 	didas        db    72
+;这块表示登陆界面中的 level 选项，默认是 1, 1 表示简单，2 表示中等，3 表示困难
+    level       db    1
+;这个用户输入的提示信息现实数据
+	info        db    "please input (1 or 2 or 3):$"
 ;0表示没有结束，1表示死亡，2表示程序退出，3表示胜利
 	game_over   db    0
 ;表示所得分数
@@ -87,8 +91,9 @@ start:
 	mov ss, ax
 	mov sp, 800h
 	call clear
-	call display
-	call wait_game
+	call display							; 登陆界面的显示
+	call display_choose						; 登陆界面的选择处理
+;	call wait_game
 	call clear
 	call init_menu
 	call ingame	
@@ -165,6 +170,7 @@ loop0:
 	mov es, ax
 	add bx, 3
 	loop row
+
 	ret
 ;--------------------------------------------------
 ;开始游戏
@@ -337,47 +343,36 @@ blank:
 ;--------------------------------------------------
 ;显示信息	
 display:
-        mov ax, data
-        mov ds, ax
-
-        mov ax, stack
-        mov ss, ax
-
-        mov cx, 13h
-
-        mov sp, 800h
-        mov ax, 0b81fh
-        mov es, ax	
+	push ax
+	push bx
+	push cx
+	push dx
 	
-        mov bx, offset snake00
+    mov cx, 13h
+    mov ax, 0b81fh
+    mov es, ax	
+    mov bx, offset snake00
 row1:
-        push cx
-        mov cx, 60
-        mov si, 0h
+    push cx
+    mov cx, 60
+    mov si, 0h
 col1:
 	mov al, [bx]
 	mov es:[si], al
-
 	cmp al, 2ah  
-	je color11
-	
+	je color11	
 	cmp al, 23h
-	je color21
-	
+	je color21	
 	jmp color31
-
 color11:
 	mov di, 0h
 	jmp loop01
-
 color21:
 	mov di, 1h
 	jmp loop01
-
 color31:
 	mov di, 2h
 	jmp loop01
-
 color41:
 	mov di, 3h
 
@@ -395,11 +390,34 @@ loop01:
 	add bx, 3
 	loop row1
 
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	
+	ret
+;--------------------------------------------------
+;登陆界面选项处理
+display_choose:
+	push ax
+	push bx
+	push cx
+
+	mov dx, offset info
+	mov ah, 09h
+	int 21h
 	mov ah, 01h
 	int 21h
 	sub al, 30h
+	
+	mov level, al
+	
+	pop cx
+	pop bx
+	pop ax
 
 	ret
+;--------------------------------------------------
 ;清屏和初始化蛇和食物
 ;--------------------------------------------------
 
