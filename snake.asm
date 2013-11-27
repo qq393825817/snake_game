@@ -45,6 +45,13 @@ data segment
     snake17     db    0ah, 0dh, "*          3.easy        2.middle       1.hard             *$";|
     snake18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
+;音频信息——节拍和频率
+	mus dw 262, 294, 300, -1	
+	time dw 2, 2, 2
+;--------------
+	music_si dw 0
+	music_di dw 0
+;--------------
 ;表示蛇的坐标
     s_locate    dw    546    dup(1)
 ;这个表示食物出现的区域，表示一个数组
@@ -84,17 +91,78 @@ start:
     mov ax, stack
     mov ss, ax
     mov sp, 200
+    mov dl, 0
     call clear
     call display                            ; 登陆界面的显示
     call display_choose                     ; 登陆界面的选择处理
     call clear
     call init_menu
-	call food_create
+    call food_create
     call ingame  
     nop
 
     mov ax,4c00h
     int 21h
+;--------------------------------------------------
+;music open
+music:
+	push cx
+	push bx
+p:	
+	mov si,music_si[0]
+	mov di,music_di[0]
+	mov cx,mus[si]
+	cmp cx, -1
+	je p
+	mov bx,time[di]
+	call sound
+	add si, 2			; 取下一频率值
+	add di, 2			; 取下一时间节拍值
+	cmp si, 4
+	jne q
+	mov si, 0
+	mov di, 0
+q:	
+	mov music_di[0], di
+	mov music_si[0], si
+	pop bx
+	pop cx
+	ret
+
+sound:
+	push dx
+	mov al, 0b6h		; 向计数器写控制字
+						; 方式3、双字节写和二进制计数方式写到控制口
+	out 43h, al			; 公用的控制寄存器（I/O 端口 43H）
+	mov dx, 08h
+	mov ax, 3208h
+	div cx				; 除以频率，其商 ax 为计数值
+						; 计数器2（I/O 端口 42H）用来控制扬声器发生
+	out 42h, al			; 计数值先送低 8 位
+	mov al, ah
+	out 42h, al			; 计数值后送高 8 位
+	in al, 61h
+	mov ah, al
+	or al, 3
+	out 61h, al
+l:
+	push dx
+	push ax
+	mov dx, 8h
+	mov ax, 0f05h
+
+s:
+	sub ax, 1
+	sbb dx, 0			; 这条语句表示只要 ax 不错位，那么 CF 就等于 0，dx - CF = dx 不影响 dx 的值。当 ax 减没了，错位了，dx 才减少 1
+	jnz s
+	pop ax
+	pop dx
+	dec bx
+	jnz l
+	mov al, ah
+	out 61h, al
+	pop dx
+	ret
 ;--------------------------------------------------
 ;wait the game
 wait_game:
@@ -186,6 +254,7 @@ loop0:
 ingame:
 	call wait_game
     call go_snake 
+	call music
 	call is_alive
     mov bx,offset game_flag
     mov dl,[bx]
@@ -330,7 +399,7 @@ down:
     jae snake_over
     add ax,84
     jmp food
-left:
+left:	
     push ax
     mov bl,84
     div bl
