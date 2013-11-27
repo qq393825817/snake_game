@@ -42,32 +42,28 @@ data segment
     snake14     db    0ah, 0dh, "#                ~______~             ~____~__/            #$";|
     snake15     db    0ah, 0dh, "************************************************************$";|
     snake16     db    0ah, 0dh, "* please to choose the level:                              *$";|
-    snake17     db    0ah, 0dh, "*          1.low        2.middle       3.high              *$";|
+    snake17     db    0ah, 0dh, "*          3.easy        2.middle       1.hard             *$";|
     snake18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
 ;表示蛇的坐标
     s_locate    dw    546    dup(1)
 ;这个表示食物出现的区域，表示一个数组
     coordinate  dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
-;9表示暂停0.5秒，18暂停1秒，36表示暂停2秒
-    didas       db    72
-;这块表示登陆界面中的 level 选项，默认是 1, 1 表示简单，2 表示中等，3 表示困难
+;这块表示登陆界面中的 level 选项，默认是 1, 3 表示简单，2 表示中等，1 表示困难
     level       db    1
 ;0表示死亡，1表示程序退出，2表示胜利
-    game_flag   db    0
+    game_flag   db    2
     value_temp  dw    100    dup(0)
 ;表示所得分数
     score       dw    0
     char_score  db    0,0,0
-;0表示蛇已经死了，1表示还活着
-    snake_alive db    1
 	food_x      db    (?)
 	food_y      db    (?)
 ;coordinate_x表示列，coordinate_y表示行
     coordinate_x db   (?)
     coordinate_y db   (?)
 ;0表示没有存在食物，1表示存在
-    exit_food   db    0
+    exit_food   db    1
 ;0表示没有吃到食物，1表示食物被吃掉了
     eat_food    db    0
     snake_head  dw    440
@@ -94,27 +90,29 @@ start:
     call clear
     call init_menu
 	call food_create
-    call ingame    
+    call ingame  
     nop
 
     mov ax,4c00h
     int 21h
 ;--------------------------------------------------
-;wait the game,the times save in didas
+;wait the game
 wait_game:
-    mov bx,offset didas
-    xor ax,ax
-    int 1ah
-    mov si,dx
-    mov di,cx
-time_out:
-    xor ax,ax
-    int 1ah
-    sub dx,si
-    sbb cx,di
-    cmp dx,[bx]
-    jb time_out
-
+	mov al,level[0]
+	mov ah,2ch
+	int 21h
+	add dh,al
+	mov bl,dh
+	cmp bl,3ch
+	jb wait_time
+	sub bl,60
+wait_time:
+	mov ah,2ch
+	int 21h
+	cmp bl,dh
+	je wait_end
+	jmp wait_time
+wait_end:
     ret 
 ;--------------------------------------------------
 ;初始化游戏
@@ -180,30 +178,35 @@ loop0:
 	mov al,level[0]
 	add al,30h
 	mov es:[2],al
+
+	mov al,level[0]
     ret
 ;--------------------------------------------------
 ;开始游戏
 ingame:
+	call wait_game
     call go_snake 
-	;call is_alive
-    ;mov bx,offset snake_alive
-    ;mov dl,[bx]
-    ;cmp dl,0
-    ;je end_ingame
-    ;mov bx,offset eat_food
-    ;mov dl,[bx]
-    ;cmp dl,0
-    ;je continue
-    ;call scores_increase
-;   continue:
+	call is_alive
+    mov bx,offset game_flag
+    mov dl,[bx]
+    cmp dl,0
+    je end_ingame
     call draw_snake
-;   jmp ingame
-;   end_ingame:
-;   mov bx,offset game_over
-;   mov dl,1
-;   mov [bx],dl
+    mov bx,offset eat_food
+    mov dl,[bx]
+    cmp dl,0
+    je ingame
+    call scores_increase
+	call food_create
+	mov dl,0
+	mov eat_food[0],dl
+    jmp ingame
+end_ingame:
+	call end_deal
     ret
-
+;--------------------------------------------------
+end_deal:
+	ret
 ;--------------------------------------------------
 ;分数增加
 scores_increase:
@@ -253,11 +256,16 @@ trans_end:
 ;判断食物是否被吃掉
 food_eat:
 	mov bl,food_y[0]
-	mov al,42
+	mov al,84
 	mul bl
+	mov dx,ax
 	mov bl,food_x[0]
 	mov bh,0
-	add ax,bx
+	mov al,bl
+	mov bl,2
+	mul bl
+	add dx,ax
+	mov ax,dx
 	mov dx,snake_head[0]
 	cmp ax,dx
 	je eat
@@ -272,8 +280,32 @@ eat_end:
     ret
 ;--------------------------------------------------
 is_alive:
-    
-
+	mov al,game_flag[0]
+	cmp al,0
+	je alive_end
+	mov al,eat_food[0]
+	cmp al,1
+	je eated
+	mov ax,value_temp[8]
+	cmp ax,1
+	je alive
+	cmp ax,2048
+	je alive
+	mov al,0
+	mov game_flag[0],al
+	jmp alive_end
+alive:
+	mov al,2
+	mov game_flag[0],al
+	jmp alive_end
+eated:
+	mov ax,value_temp[8]
+	cmp ax,1
+	je alive
+	mov al,0
+	mov game_flag[0],al
+	jmp alive_end
+alive_end:
     ret
 ;--------------------------------------------------
 ;让蛇朝着snake_dir的方向走
@@ -290,12 +322,12 @@ go_snake:
     je right
 up:    
     cmp ax,84
-    jb game_over
+    jb snake_over
     sub ax,84
     jmp food
 down:
     cmp ax,1008
-    jae game_over
+    jae snake_over
     add ax,84
     jmp food
 left:
@@ -303,7 +335,7 @@ left:
     mov bl,84
     div bl
     cmp ah,0
-    je game_over
+    je snake_over
     pop ax
     sub ax,2
     jmp food
@@ -312,7 +344,7 @@ right:
     mov bl,84
     div bl
     cmp ah,82
-    je game_over
+    je snake_over
     pop ax
     add ax,2
     jmp food
@@ -325,7 +357,7 @@ food:
     mov cx,[bx+si]
 	pop bx
     mov s_locate[si],bx
-    mov value_temp[0],cx
+    mov value_temp[8],cx
 continue:
     mov cx,s_locate[bx]
     cmp cx,2048
@@ -335,7 +367,7 @@ continue:
     jmp continue
 compare:
 	mov value_temp[10],bx
-	;call food_eat
+;	call food_eat
     mov dl,eat_food[0]
     cmp dl,1
     je go_end
@@ -345,7 +377,7 @@ compare:
 	mov bx,ax
     mov s_locate[bx],dx
     jmp go_end
-game_over:
+snake_over:
     mov bl,0
     mov game_flag[0],bl
     jmp go_end
@@ -395,9 +427,7 @@ draw_body:
 	jmp draw_body
 draw_tail:	
 	mov ax,bx
-	mov bx,value_temp[10]
-	cmp ax,bx
-	je draw_end
+	push ax
 	mov dl,84
 	div dl
 	mov coordinate_y,al
@@ -411,6 +441,10 @@ draw_tail:
 	mov si,value_temp[2]
 	mov dl,'>'
 	mov es:[si],dl
+	pop ax
+	mov bx,value_temp[10]
+	cmp ax,bx
+	je draw_end
 	call clear_tail
 draw_end:	
     ret
