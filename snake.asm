@@ -44,6 +44,46 @@ data segment
     snake17     db    0ah, 0dh, "*          3.easy        2.middle       1.hard             *$";|
     snake18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
+    game00     db              "************************************************************$";|
+    game01     db    0ah, 0dh, "*                        Snake Game                        *$";| 
+    game02     db    0ah, 0dh, "************************************************************$";|
+    game03     db    0ah, 0dh, "#                                                          #$";|
+    game04     db    0ah, 0dh, "#           @@@@@      @      @@     @@  @@@@@@@@@         #$";|
+    game05     db    0ah, 0dh, "#        @@           @ @     @ @   @ @  @                 #$";|
+    game06     db    0ah, 0dh, "#       @@           @   @    @  @ @  @  @@@@@@            #$";|
+    game07     db    0ah, 0dh, "#        @@   @@@   @ @ @ @   @   @   @  @                 #$";|
+    game08     db    0ah, 0dh, "#          @@@  @  @       @  @       @  @@@@@@@@@         #$";|
+    game09     db    0ah, 0dh, "#                                                          #$";|
+    game10     db    0ah, 0dh, "#            ###    #      #  ########  #######            #$";|
+    game11     db    0ah, 0dh, "#          ##  ##    #    #   #         #      #           #$";|
+	game12     db    0ah, 0dh, "#         #      #   #    #   #####     #######            #$";|
+    game13     db    0ah, 0dh, "#          ##  ##     #  #    #         #    #             #$";|
+    game14     db    0ah, 0dh, "#           ###        ##     ########  #     #            #$";|
+    game15     db    0ah, 0dh, "*                                                          #$";|          
+	game16     db    0ah, 0dh, "*     please to choose:                                    #$";|
+    game17     db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
+    game18     db    0ah, 0dh, "************************************************************$";|
+;------------------------------------------------------------------------------------------------
+    success00     db              "************************************************************$";|
+    success01     db    0ah, 0dh, "*                        Snake Game                        *$";| 
+    success02     db    0ah, 0dh, "************************************************************$";|
+    success03     db    0ah, 0dh, "#                                                          #$";|
+    success04     db    0ah, 0dh, "#           @@@@@      @      @@     @@  @@@@@@@@@         #$";|
+    success05     db    0ah, 0dh, "#        @@           @ @     @ @   @ @  @                 #$";|
+    success06     db    0ah, 0dh, "#       @@           @   @    @  @ @  @  @@@@@@            #$";|
+    success07     db    0ah, 0dh, "#        @@   @@@   @ @ @ @   @   @   @  @                 #$";|
+    success08     db    0ah, 0dh, "#          @@@  @  @       @  @   @   @  @@@@@@@@@         #$";|
+    success09     db    0ah, 0dh, "#                                                          #$";|
+    success10     db    0ah, 0dh, "#                                                          #$";|
+    success11     db    0ah, 0dh, "#           $         $  $ $ $ $ $   $ $    $              #$";|
+	success12     db    0ah, 0dh, "#            $   $   $       $       $  $   $              #$";|
+    success13     db    0ah, 0dh, "#             $ $ $ $        $       $   $  $              #$";|
+    success14     db    0ah, 0dh, "#              $   $     $ $ $ $ $   $    $ $              #$";|
+    success15     db    0ah, 0dh, "*                                                          #$";|          
+	success16     db    0ah, 0dh, "*     please to choose:                                    #$";|
+    success17     db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
+    success18     db    0ah, 0dh, "************************************************************$";|
+;------------------------------------------------------------------------------------------------
 ;音频信息——节拍和频率
     mus         dw    262, 294, 300, -1    
     time        dw    2, 2, 2
@@ -59,6 +99,8 @@ data segment
     level       db    1
 ;0表示死亡，1表示程序退出，2表示胜利
     game_flag   db    2
+;这一向用来保存退出界面的选项：1、表示退出。2、表示重新开始
+	game_choose db    1
     value_temp  dw    100    dup(0)
 ;表示所得分数
     score       dw    0
@@ -76,7 +118,7 @@ data segment
 ;0表示向上，1向下，2向左，3向右
     snake_dir   db    0
 ;这个用户输入的提示信息现实数据
-    info        db    "please input (1 or 2 or 3):$"
+    info        db    "please input (can't over 3 times error input):$"
 data ends
 
 stack segment
@@ -290,7 +332,7 @@ init_menu endp
 ingame proc near
     call wait_game
     call go_snake 
-;    call music
+    call music
     call is_alive
     mov bx,offset game_flag
     mov dl,[bx]
@@ -312,6 +354,82 @@ end_ingame:
 ingame endp
 ;--------------------------------------------------
 end_deal proc near
+    push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	mov bx, offset game_flag
+	mov dl, [bx]
+    mov cx, 13h                ; all of 19 line and loop 19 times
+    mov ax, 0b81fh            ; the start address and show memory
+    mov es, ax
+	cmp dl, 0
+	je show_gameover
+	cmp dl, 1
+	je show_gameover 
+	cmp dl, 2
+	je show_gamesuccess
+show_gameover:
+    call clear
+    mov bx, offset game00
+	jmp row2
+show_gamesuccess:
+	mov bx, offset success00
+	jmp row2
+row2:
+    push cx
+    mov cx, 60
+    mov si, 0h
+col2:
+    mov al, [bx]
+    mov es:[si], al
+
+    cmp al, 2ah  
+    je color12
+    
+    cmp al, 23h
+    je color22
+    
+    jmp color32
+
+color12:
+    mov di, 0h
+    jmp loop02
+
+color22:
+    mov di, 1h
+    jmp loop02
+
+color32:
+    mov di, 2h
+    jmp loop02
+
+color42:
+    mov di, 3h
+
+loop02:
+    mov ah, [di]
+    mov es:[si + 1], ah
+    inc bx
+    add si, 2
+    loop col2
+    pop cx
+
+    mov ax, es
+    add ax, 0ah
+    mov es, ax
+    add bx, 3
+    loop row2
+	
+	call display_choose
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
     ret
 end_deal endp
 ;--------------------------------------------------
@@ -745,17 +863,59 @@ display_choose proc near
     push ax
     push bx
     push cx
-
-    mov dx, offset info
-    mov ah, 09h
-    int 21h
+	push dx
+	push si
+	push di
+	mov cx, 3
+ag:
+	mov ax, 0b8f1h
+	mov es, ax
+    mov bx, offset info
+	mov si, 0h
+	push cx
+	xor cx, cx
+    mov cx, 46
+y:
+	mov al, [bx]
+	mov es:[si], al
+	mov di, 0h
+	mov ah, [di]
+	mov es:[si + 1], ah
+	inc bx
+	add si, 2
+	loop y
+	pop cx
+	mov ah, 2
+	mov bh, 0
+	mov dh, 24
+	mov dl, 54
+	int 10h
     mov ah, 01h
     int 21h
     sub al, 30h
-    
+	cmp al, 1
+	je p1
+	cmp al, 2
+	je p1
+	cmp al, 3
+	je p1
+	cmp al, 4
+	je p2
+	cmp al, 5
+	je p2
+	loop ag
+    mov ax, 4c00h
+	int 21h
+p1:
     mov level[0], al
-    
-    pop cx
+	jmp end_show
+p2:
+	mov game_choose, al
+end_show:   
+	pop di
+	pop si
+	pop dx
+	pop cx
     pop bx
     pop ax
 
