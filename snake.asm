@@ -1,4 +1,3 @@
-assume cs:code,ds:data,ss:stack
 data segment
 ;------------------------------------------------------------------------------------------------
     attr1       db    02h                            ; the color of '*', black and the green on |
@@ -85,6 +84,8 @@ stack segment
 stack ends
 
 code segment
+    assume cs:code,ds:data,ss:stack
+main proc far
 start:
     mov ax,data
     mov ds,ax
@@ -98,11 +99,11 @@ start:
     call clear
     call init_menu
     call food_create
-    call ingame  
-    nop
+    call ingame
 
     mov ax,4c00h
     int 21h
+main endp
 ;--------------------------------------------------
 ;music open
 music:
@@ -165,54 +166,59 @@ s:
     ret
 ;--------------------------------------------------
 ;wait the game
-wait_game:
+wait_game proc near
     mov al,level[0]
+    push ax
     mov ah,2ch
     int 21h
+    pop ax
     add dh,al
     mov bl,dh
     cmp bl,3ch
     jb wait_time
     sub bl,60
 wait_time:
+    push bx
     mov ah,2ch
     int 21h
+    pop bx
     cmp bl,dh
     je wait_end
     jmp wait_time
 wait_end:
-	mov ah,1
-	int 16h
-	jz wait_quit
-	mov ah,0
-	int 16h
-	cmp al,'w'
-	je dir_w
-	cmp al,'s'
-	je dir_s
-	cmp al,'a'
-	je dir_a
-	cmp al,'d'
-	je dir_d
+    mov ah,1
+    int 16h
+    jz wait_quit
+    mov ah,0
+    int 16h
+    cmp al,'w'
+    je dir_w
+    cmp al,'s'
+    je dir_s
+    cmp al,'a'
+    je dir_a
+    cmp al,'d'
+    je dir_d
 dir_w:
-	mov al,0
-	jmp wait_dir
+    mov al,0
+    jmp wait_dir
 dir_s:
-	mov al,1
-	jmp wait_dir
+    mov al,1
+    jmp wait_dir
 dir_a:
-	mov al,2
-	jmp wait_dir
+    mov al,2
+    jmp wait_dir
 dir_d:
-	mov al,3
-	jmp wait_dir
+    mov al,3
+    jmp wait_dir
 wait_dir:
-	mov snake_dir[0],al
+    mov snake_dir[0],al
 wait_quit:
     ret 
+wait_game endp
 ;--------------------------------------------------
 ;初始化游戏
-init_menu:
+init_menu proc near
     mov cx, 13h                ; all of 19 line and loop 19 times
     mov ax, 0b81fh            ; the start address and show memory
     mov es, ax
@@ -278,9 +284,10 @@ loop0:
 
     mov al,level[0]
     ret
+init_menu endp
 ;--------------------------------------------------
 ;开始游戏
-ingame:
+ingame proc near
     call wait_game
     call go_snake 
 ;    call music
@@ -302,12 +309,14 @@ ingame:
 end_ingame:
     call end_deal
     ret
+ingame endp
 ;--------------------------------------------------
-end_deal:
+end_deal proc near
     ret
+end_deal endp
 ;--------------------------------------------------
 ;分数增加
-scores_increase:
+scores_increase proc near
     mov bx,offset score
     mov ax,[bx]
     inc ax
@@ -326,9 +335,10 @@ increase:
     sub si,2
     loop increase
     ret
+scores_increase endp
 ;--------------------------------------------------
 ;将十进制数转化为字符型
-trans_char:
+trans_char proc near
     mov bx,offset score
     mov ax,[bx]
     mov dl,10
@@ -348,10 +358,10 @@ trans_end:
     mov bx,offset value_temp
     mov [bx],cx
     ret
-
+trans_char endp
 ;--------------------------------------------------
 ;判断食物是否被吃掉
-food_eat:
+food_eat proc near
     mov bl,food_y[0]
     mov al,84
     mul bl
@@ -375,8 +385,9 @@ eat:
     jmp eat_end
 eat_end:
     ret
+food_eat endp
 ;--------------------------------------------------
-is_alive:
+is_alive proc near
     mov al,game_flag[0]
     cmp al,0
     je alive_end
@@ -404,9 +415,10 @@ eated:
     jmp alive_end
 alive_end:
     ret
+is_alive endp
 ;--------------------------------------------------
 ;让蛇朝着snake_dir的方向走
-go_snake:
+go_snake proc near
     mov bl,snake_dir[0]
     mov ax,snake_head[0]
     cmp bl,0
@@ -424,7 +436,7 @@ up:
     jmp food
 down:
     cmp ax,1008
-    jae relay
+    je relay
     add ax,84
     jmp food
 left:    
@@ -446,7 +458,7 @@ right:
     add ax,2
     jmp food
 relay:
-	jmp snake_over
+    jmp snake_over
 food:
     mov bx,snake_head[0]
     mov snake_head[0],ax
@@ -457,8 +469,8 @@ food:
     pop bx
     mov s_locate[si],bx
     mov value_temp[8],cx
-	cmp cx,1
-	jne snake_over
+    cmp cx,1
+    jne snake_over
 continue:
     mov cx,s_locate[bx]
     cmp cx,2048
@@ -468,11 +480,11 @@ continue:
     jmp continue
 compare:
     mov value_temp[10],bx
-	push bx
-	push ax
+    push bx
+    push ax
     call food_eat
-	pop ax
-	pop bx
+    pop ax
+    pop bx
     mov dl,eat_food[0]
     cmp dl,1
     je go_end
@@ -488,9 +500,10 @@ snake_over:
     jmp go_end
 go_end:  
     ret
+go_snake endp
 ;--------------------------------------------------
 ;画蛇
-draw_snake:
+draw_snake proc near
     mov ax,snake_head[0]
     push ax
     mov bl,84
@@ -553,8 +566,9 @@ draw_tail:
     call clear_tail
 draw_end:    
     ret
+draw_snake endp
 ;--------------------------------------------------
-clear_tail:
+clear_tail proc near
     mov ax,value_temp[10]
     mov dl,84
     div dl
@@ -570,9 +584,10 @@ clear_tail:
     mov dl,' '
     mov es:[si],dl
     ret
+clear_tail endp
 ;--------------------------------------------------
 ;随机放置食物
-food_create:
+food_create proc near
 food_begin:
     mov ah,0
     int 1ah
@@ -607,10 +622,10 @@ food_end:
     mov es:[si],dl
 
     ret
-
+food_create endp
 ;--------------------------------------------------
 ;确实放置区域
-locate:
+locate proc near
     mov bx,offset coordinate_y
     mov dl,[bx]
     mov al,2
@@ -645,9 +660,10 @@ locate:
     mov value_temp[0],es
     mov value_temp[2],si
     ret
+locate endp
 ;--------------------------------------------------
 ;清屏函数
-clear:
+clear proc near
     push ds
     push cx
     push es
@@ -665,9 +681,10 @@ blank:
     pop ds
 
     ret
+clear endp
 ;--------------------------------------------------
 ;显示信息    
-display:
+display proc near
     push ax
     push bx
     push cx
@@ -721,9 +738,10 @@ loop01:
     pop ax
     
     ret
+display endp
 ;--------------------------------------------------
 ;登陆界面选项处理
-display_choose:
+display_choose proc near
     push ax
     push bx
     push cx
@@ -742,6 +760,7 @@ display_choose:
     pop ax
 
     ret
+display_choose endp
 ;--------------------------------------------------
 
 code ends
