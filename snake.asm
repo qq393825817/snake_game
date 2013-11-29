@@ -61,7 +61,7 @@ data segment
     game14     db    0ah, 0dh, "#           ###        ##     ########  #     #            #$";|
     game15     db    0ah, 0dh, "*                                                          #$";|          
 	game16     db    0ah, 0dh, "*     please to choose:                                    #$";|
-    game17     db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
+    game17     db    0ah, 0dh, "*                4 : quit     5 : restart                  #$";|
     game18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
     success00     db              "************************************************************$";|
@@ -81,12 +81,21 @@ data segment
     success14     db    0ah, 0dh, "#              $   $     $ $ $ $ $   $    $ $              #$";|
     success15     db    0ah, 0dh, "*                                                          #$";|          
 	success16     db    0ah, 0dh, "*     please to choose:                                    #$";|
-    success17     db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
+    success17     db    0ah, 0dh, "*                4 : quit     5 : restart                  #$";|
     success18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
 ;音频信息——节拍和频率
-    mus         dw    262, 294, 300, -1    
-    time        dw    2, 2, 2
+    mus         dw 262, 262, 294, 262, 349
+                dw 330, 262, 262, 294, 262
+                dw 392, 349, 262, 262, 523
+                dw 440, 349, 262, 262, 466
+                dw 466, 440, 262, 392, 349, -1
+
+    time        dw 1, 1, 2, 2, 2
+                dw 2, 2, 1, 1, 2
+                dw 2, 2, 2, 1, 1
+                dw 2, 2, 2, 2, 2
+                dw 1, 2, 2, 2, 2
 ;--------------
     music_si    dw    0
     music_di    dw    0
@@ -161,7 +170,7 @@ p:
     call sound
     add si, 2            ; 取下一频率值
     add di, 2            ; 取下一时间节拍值
-    cmp si, 4
+    cmp si, 50
     jne q
     mov si, 0
     mov di, 0
@@ -178,7 +187,7 @@ sound:
                         ; 方式3、双字节写和二进制计数方式写到控制口
     out 43h, al            ; 公用的控制寄存器（I/O 端口 43H）
     mov dx, 08h
-    mov ax, 3208h
+    mov ax, 208h
     div cx                ; 除以频率，其商 ax 为计数值
                         ; 计数器2（I/O 端口 42H）用来控制扬声器发生
     out 42h, al            ; 计数值先送低 8 位
@@ -902,14 +911,16 @@ y:
 	cmp al, 4
 	je p2
 	cmp al, 5
-	je p2
+	je p3
 	loop ag
-    mov ax, 4c00h
-	int 21h
+	jmp p2
 p1:
     mov level[0], al
 	jmp end_show
 p2:
+	mov ax, 4c00h
+	int 21h
+p3:
 	mov game_choose, al
 end_show:   
 	pop di
