@@ -9,7 +9,7 @@ data segment
     show02      db    0ah, 0dh, "************************************************************$";|
     show03      db    0ah, 0dh, "                                                            $";|
     show04      db    0ah, 0dh, "**************  ############################################$";|
-    show05      db    0ah, 0dh, "* sorce:000  *  #                                          #$";|
+    show05      db    0ah, 0dh, "* sorce:000  *  #@->                                       #$";|
     show06      db    0ah, 0dh, "*            *  #                                          #$";|
     show07      db    0ah, 0dh, "*            *  #                                          #$";|
     show08      db    0ah, 0dh, "* level:0    *  #                                          #$";|
@@ -44,6 +44,7 @@ data segment
     snake17     db    0ah, 0dh, "*          3.easy        2.middle       1.hard             *$";|
     snake18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
+;------------------------------------------------------------------------------------------------
     game00     db              "************************************************************$";|
     game01     db    0ah, 0dh, "*                        Snake Game                        *$";| 
     game02     db    0ah, 0dh, "************************************************************$";|
@@ -56,77 +57,70 @@ data segment
     game09     db    0ah, 0dh, "#                                                          #$";|
     game10     db    0ah, 0dh, "#            ###    #      #  ########  #######            #$";|
     game11     db    0ah, 0dh, "#          ##  ##    #    #   #         #      #           #$";|
-	game12     db    0ah, 0dh, "#         #      #   #    #   #####     #######            #$";|
+    game12     db    0ah, 0dh, "#         #      #   #    #   #####     #######            #$";|
     game13     db    0ah, 0dh, "#          ##  ##     #  #    #         #    #             #$";|
     game14     db    0ah, 0dh, "#           ###        ##     ########  #     #            #$";|
     game15     db    0ah, 0dh, "*                                                          #$";|          
-	game16     db    0ah, 0dh, "*     please to choose:                                    #$";|
+    game16     db    0ah, 0dh, "*     please to choose:                                    #$";|
     game17     db    0ah, 0dh, "*                4 : quit     5 : restart                  #$";|
     game18     db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
-    success00     db              "************************************************************$";|
-    success01     db    0ah, 0dh, "*                        Snake Game                        *$";| 
-    success02     db    0ah, 0dh, "************************************************************$";|
-    success03     db    0ah, 0dh, "#                                                          #$";|
-    success04     db    0ah, 0dh, "#           @@@@@      @      @@     @@  @@@@@@@@@         #$";|
-    success05     db    0ah, 0dh, "#        @@           @ @     @ @   @ @  @                 #$";|
-    success06     db    0ah, 0dh, "#       @@           @   @    @  @ @  @  @@@@@@            #$";|
-    success07     db    0ah, 0dh, "#        @@   @@@   @ @ @ @   @   @   @  @                 #$";|
-    success08     db    0ah, 0dh, "#          @@@  @  @       @  @   @   @  @@@@@@@@@         #$";|
-    success09     db    0ah, 0dh, "#                                                          #$";|
-    success10     db    0ah, 0dh, "#                                                          #$";|
-    success11     db    0ah, 0dh, "#           $         $  $ $ $ $ $   $ $    $              #$";|
-	success12     db    0ah, 0dh, "#            $   $   $       $       $  $   $              #$";|
-    success13     db    0ah, 0dh, "#             $ $ $ $        $       $   $  $              #$";|
-    success14     db    0ah, 0dh, "#              $   $     $ $ $ $ $   $    $ $              #$";|
-    success15     db    0ah, 0dh, "*                                                          #$";|          
-	success16     db    0ah, 0dh, "*     please to choose:                                    #$";|
-    success17     db    0ah, 0dh, "*                4 : quit     5 : restart                  #$";|
-    success18     db    0ah, 0dh, "************************************************************$";|
+    success00  db              "************************************************************$";|
+    success01  db    0ah, 0dh, "*                        Snake Game                        *$";| 
+    success02  db    0ah, 0dh, "************************************************************$";|
+    success03  db    0ah, 0dh, "#                                                          #$";|
+    success04  db    0ah, 0dh, "#           @@@@@      @      @@     @@  @@@@@@@@@         #$";|
+    success05  db    0ah, 0dh, "#        @@           @ @     @ @   @ @  @                 #$";|
+    success06  db    0ah, 0dh, "#       @@           @   @    @  @ @  @  @@@@@@            #$";|
+    success07  db    0ah, 0dh, "#        @@   @@@   @ @ @ @   @   @   @  @                 #$";|
+    success08  db    0ah, 0dh, "#          @@@  @  @       @  @   @   @  @@@@@@@@@         #$";|
+    success09  db    0ah, 0dh, "#                                                          #$";|
+    success10  db    0ah, 0dh, "#                                                          #$";|
+    success11  db    0ah, 0dh, "#           $         $  $ $ $ $ $   $ $    $              #$";|
+    success12  db    0ah, 0dh, "#            $   $   $       $       $  $   $              #$";|
+    success13  db    0ah, 0dh, "#             $ $ $ $        $       $   $  $              #$";|
+    success14  db    0ah, 0dh, "#              $   $     $ $ $ $ $   $    $ $              #$";|
+    success15  db    0ah, 0dh, "*                                                          #$";|          
+    success16  db    0ah, 0dh, "*     please to choose:                                    #$";|
+    success17  db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
+    success18  db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
-;音频信息——节拍和频率
-    mus         dw 262, 262, 294, 262, 349
-                dw 330, 262, 262, 294, 262
-                dw 392, 349, 262, 262, 523
-                dw 440, 349, 262, 262, 466
-                dw 466, 440, 262, 392, 349, -1
-
-    time        dw 1, 1, 2, 2, 2
-                dw 2, 2, 1, 1, 2
-                dw 2, 2, 2, 1, 1
-                dw 2, 2, 2, 2, 2
-                dw 1, 2, 2, 2, 2
-;--------------
+   mus         dw    262, 262, 294, 262, 349 ;音频信息——节拍和频率
+	            dw    330, 262, 262, 294, 262
+				dw    392, 349, 262, 262, 523
+				dw    440, 349, 262, 262, 446
+				dw    466, 440, 262, 392, 349
+				dw    -1
+    time        dw    1, 1, 1, 1, 1
+	            dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
     music_si    dw    0
     music_di    dw    0
-;--------------
-;表示蛇的坐标
-    s_locate    dw    546    dup(1)
-;这个表示食物出现的区域，表示一个数组
-    coordinate  dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h
-;这块表示登陆界面中的 level 选项，默认是 1, 3 表示简单，2 表示中等，1 表示困难
-    level       db    1
-;0表示死亡，1表示程序退出，2表示胜利
-    game_flag   db    2
-;这一向用来保存退出界面的选项：1、表示退出。2、表示重新开始
-	game_choose db    1
-    value_temp  dw    100    dup(0)
-;表示所得分数
-    score       dw    0
-    char_score  db    0,0,0
-    food_x      db    (?)
-    food_y      db    (?)
-;coordinate_x表示列，coordinate_y表示行
-    coordinate_x db   (?)
+    select      db    0 ;0表示玩家自己控制的蛇,1表示AI蛇
+    s_locate    dw    546    dup(1) ;表示蛇的坐标
+    coordinate  dw    0532h,05d2h,0672h,0712h,07b2h,0852h,08f2h,0992h,0a32h,0ad2h,0b72h,0c12h,0cb2h ;这个表示食物出现的区域，表示一个数组
+    level       db    1 ;这块表示登陆界面中的 level 选项，默认是 1, 3 表示简单，2 表示中等，1 表示困难
+    game_flag   db    2 ;0表示死亡，1表示程序退出，2表示胜利
+    game_choose db    1
+    value_temp  dw    546    dup(0) ;存放临时数据
+    ai_temp     dw    0
+    queue_head  dw    0
+    queue_tail  dw    0
+    score       dw    0 ;表示所得分数
+    char_score  db    0,0,0 ;表示在屏幕上显示
+    food_x      db    (?) ;存放食物坐标
+    food_y      db    (?) 
+    coordinate_x db   (?) ;coordinate_x表示列，coordinate_y表示行
     coordinate_y db   (?)
-;0表示没有存在食物，1表示存在
-    exit_food   db    1
-;0表示没有吃到食物，1表示食物被吃掉了
-    eat_food    db    0
-    snake_head  dw    440
-;0表示向上，1向下，2向左，3向右
-    snake_dir   db    0
-;这个用户输入的提示信息现实数据
+    exit_food   db    1 ;0表示没有存在食物，1表示存在
+    eat_food    db    0 ;0表示没有吃到食物，1表示食物被吃掉了
+    ai_snake_head dw  0 ;ai蛇头坐标
+    ai_snake_dir db   0 ;ai
+    ai_death    db    0 ;1表示死了，0表示还活着
+    snake_head  dw    440 ;玩家蛇头坐标
+    snake_dir   db    0 ;0表示向上，1向下，2向左，3向右
     info        db    "please input (can't over 3 times error input):$"
 data ends
 
@@ -145,41 +139,41 @@ start:
     mov sp, 200
     mov dl, 0
     call clear
-    call display                            ; 登陆界面的显示
-    call display_choose                     ; 登陆界面的选择处理
-    call clear
-    call init_menu
-    call food_create
-    call ingame
+    call display ; 登陆界面的显示
+    call display_choose ; 登陆界面的选择处理
+    call clear ;清空屏幕
+    call init_menu ;初始化信息和数据
+    call food_create;随机放置食物
+    call ingame;开始游戏
 
     mov ax,4c00h
     int 21h
 main endp
 ;--------------------------------------------------
 ;music open
-music:
+music proc near
     push cx
     push bx
-p:    
+init_mus:    
     mov si,music_si[0]
     mov di,music_di[0]
     mov cx,mus[si]
     cmp cx, -1
-    je p
+    je init_mus
     mov bx,time[di]
     call sound
     add si, 2            ; 取下一频率值
     add di, 2            ; 取下一时间节拍值
     cmp si, 50
-    jne q
+    jne next_step
     mov si, 0
     mov di, 0
-q:    
+next_step:    
     mov music_di[0], di
     mov music_si[0], si
     pop bx
     pop cx
-    ret
+	ret
 
 sound:
     push dx
@@ -187,7 +181,7 @@ sound:
                         ; 方式3、双字节写和二进制计数方式写到控制口
     out 43h, al            ; 公用的控制寄存器（I/O 端口 43H）
     mov dx, 08h
-    mov ax, 208h
+    mov ax, 3208h
     div cx                ; 除以频率，其商 ax 为计数值
                         ; 计数器2（I/O 端口 42H）用来控制扬声器发生
     out 42h, al            ; 计数值先送低 8 位
@@ -197,46 +191,27 @@ sound:
     mov ah, al
     or al, 3
     out 61h, al
-l:
+times_delay:			
     push dx
     push ax
     mov dx, 8h
-    mov ax, 0f05h
+    mov ax, 0105h
 
-s:
+per_delay:
     sub ax, 1
     sbb dx, 0            ; 这条语句表示只要 ax 不错位，那么 CF 就等于 0，dx - CF = dx 不影响 dx 的值。当 ax 减没了，错位了，dx 才减少 1
-    jnz s
+    jnz per_delay
     pop ax
     pop dx
     dec bx
-    jnz l
+    jnz times_delay
     mov al, ah
     out 61h, al
     pop dx
     ret
+music endp
 ;--------------------------------------------------
-;wait the game
-wait_game proc near
-    mov al,level[0]
-    push ax
-    mov ah,2ch
-    int 21h
-    pop ax
-    add dh,al
-    mov bl,dh
-    cmp bl,3ch
-    jb wait_time
-    sub bl,60
-wait_time:
-    push bx
-    mov ah,2ch
-    int 21h
-    pop bx
-    cmp bl,dh
-    je wait_end
-    jmp wait_time
-wait_end:
+wait_game proc near 
     mov ah,1
     int 16h
     jz wait_quit
@@ -326,6 +301,7 @@ loop0:
     mov s_locate[442],ax
     mov ax,2048
     mov s_locate[444],ax
+
     mov ax,0b870h
     mov es,ax
     mov al,level[0]
@@ -333,13 +309,20 @@ loop0:
 
     mov es:[2],al
 
-    mov al,level[0]
+    mov ax,2
+    mov s_locate[0],ax
+    mov ax,4
+    mov s_locate[2],ax
+    mov ax,2048
+    mov s_locate[4],ax
     ret
 init_menu endp
 ;--------------------------------------------------
 ;开始游戏
 ingame proc near
     call wait_game
+    mov al,0
+    mov select[0],al
     call go_snake 
     call music
     call is_alive
@@ -351,42 +334,245 @@ ingame proc near
     mov bx,offset eat_food
     mov dl,[bx]
     cmp dl,0
-    je ingame
+    je ai_game
     call scores_increase
     call food_create
     mov dl,0
     mov eat_food[0],dl
+ai_game:
+    mov al,1
+    mov select[0],al
+    mov al,ai_death
+    cmp al,1
+    je clear_ai
+    call search_path
+    call go_snake
+    call draw_snake
+    mov dl,eat_food[0]
+    cmp dl,0
+    je ingame
+    call food_create
+    mov dl,0
+    mov eat_food[0],dl
     jmp ingame
+clear_ai:
+    call clear_ai_snake
 end_ingame:
     call end_deal
     ret
 ingame endp
 ;--------------------------------------------------
+clear_ai_snake proc near
+    ret
+clear_ai_snake endp
+;--------------------------------------------------
+search_path proc near    
+    mov al,84
+    mov ch,food_y
+    mul ch
+    mov di,ax
+    mov cl,food_x
+    mov al,2
+    mul cl
+    add di,ax
+    mov bx,ai_snake_head[0]
+    mov ax,bx
+    mov ai_temp[0],ax
+BFS:
+    cmp ax,di
+    je relay_dir
+    cmp ax,84
+    jge ai_up
+    jmp ai_snake_down
+ai_up:
+    mov ax,ai_temp[0]
+    sub ax,84
+    mov si,ax
+    mov dx,s_locate[si]
+    cmp dx,1
+    je queue_up
+    jmp ai_snake_down
+queue_up:
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,3
+    mov s_locate[si],dx
+    mov value_temp[bx],ax
+    add bx,2
+    mov queue_tail[0],bx
+    mov bl,0
+    mov ai_death[0],bl
+ai_snake_down:
+    mov ax,ai_temp[0]
+    cmp ax,1008
+    jb ai_down
+    jmp ai_snake_left
+relay_dir:
+    jmp search_dir
+ai_down:
+    mov ax,ai_temp[0]
+    add ax,84
+    mov si,ax
+    mov dx,s_locate[si]
+    cmp dx,1
+    je queue_down
+    jmp ai_snake_left
+queue_down:        
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,5
+    mov s_locate[si],dx
+    mov value_temp[bx],ax
+    add bx,2
+    mov queue_tail[0],bx
+    mov bl,0
+    mov ai_death[0],bl
+ai_snake_left:
+    mov ax,ai_temp[0]
+    mov bl,84
+    div bl
+    cmp ah,0
+    jg ai_left
+    jmp ai_snake_right
+ai_left:
+    mov ax,ai_temp[0]
+    sub ax,2
+    mov si,ax
+    mov dx,s_locate[si]
+    cmp dx,1
+    je queue_left
+    jmp ai_snake_right
+queue_left:    
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,7
+    mov s_locate[si],dx
+    mov value_temp[bx],ax
+    add bx,2
+    mov queue_tail[0],bx
+    mov bl,0
+    mov ai_death[0],bl
+ai_snake_right:
+    mov ax,ai_temp[0]
+    mov dx,ax
+    mov bl,84
+    div bl
+    cmp ah,82
+    jb ai_right
+    jmp ai_end
+ai_right:
+    mov ax,ai_temp[0]
+    add ax,2
+    mov si,ax
+    mov dx,s_locate[si]
+    cmp dx,1
+    je queue_right
+    jmp ai_end
+queue_right:    
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,9
+    mov s_locate[si],dx
+    mov value_temp[bx],ax
+    add bx,2
+    mov queue_tail[0],bx
+    mov bl,0
+    mov ai_death[0],bl
+ai_end:
+    mov bx,queue_head[0]
+    mov ax,value_temp[bx]
+    mov ai_temp[0],ax
+    add bx,2
+    mov queue_head[0],bx
+    jmp BFS
+search_dir:
+    cmp di,ai_snake_head[0]
+    je search_end
+    mov ax,s_locate[di]
+    cmp ax,3
+    je back_up
+    cmp ax,5
+    je back_down
+    cmp ax,7
+    je back_left
+    cmp ax,9
+    je back_right
+back_up:
+    add di,84
+    mov al,0
+    mov ai_snake_dir[0],al
+    jmp search_dir
+back_down:
+    sub di,84
+    mov al,1
+    mov ai_snake_dir[0],al
+    jmp search_dir
+back_left:
+    add di,2
+    mov al,2
+    mov ai_snake_dir[0],al
+    jmp search_dir
+back_right:
+    sub di,2
+    mov al,3
+    mov ai_snake_dir[0],al
+    jmp search_dir
+search_end:
+    mov ax,0
+    mov queue_head[0],ax
+    mov queue_tail[0],ax
+    mov cx,1090
+initial_value:
+    mov si,cx
+    mov ax,s_locate[si]
+    cmp ax,3
+    je initial
+    cmp ax,5
+    je initial
+    cmp ax,7
+    je initial
+    cmp ax,9
+    je initial
+    cmp cx,0
+    je initial_end
+    sub cx,2
+    jmp initial_value
+initial:
+    mov ax,1
+    mov s_locate[si],ax
+    cmp cx,0
+    je initial_end
+    sub cx,2
+    jmp initial_value
+initial_end:
+    ret
+search_path endp
+;--------------------------------------------------
 end_deal proc near
     push ax
-	push bx
-	push cx
-	push dx
-	push si
-	push di
-	mov bx, offset game_flag
-	mov dl, [bx]
+    push bx
+    push cx
+    push dx
+    push si
+    push di
+    mov bx, offset game_flag
+    mov dl, [bx]
     mov cx, 13h                ; all of 19 line and loop 19 times
     mov ax, 0b81fh            ; the start address and show memory
     mov es, ax
-	cmp dl, 0
-	je show_gameover
-	cmp dl, 1
-	je show_gameover 
-	cmp dl, 2
-	je show_gamesuccess
+    cmp dl, 0
+    je show_gameover
+    cmp dl, 1
+    je show_gameover 
+    cmp dl, 2
+    je show_gamesuccess
 show_gameover:
     call clear
     mov bx, offset game00
-	jmp row2
+    jmp row2
 show_gamesuccess:
-	mov bx, offset success00
-	jmp row2
+    mov bx, offset success00
+    jmp row2
 row2:
     push cx
     mov cx, 60
@@ -431,14 +617,14 @@ loop02:
     mov es, ax
     add bx, 3
     loop row2
-	
-	call display_choose
-	pop di
-	pop si
-	pop dx
-	pop cx
-	pop bx
-	pop ax
+    
+    call display_choose
+    pop di
+    pop si
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 end_deal endp
 ;--------------------------------------------------
@@ -500,7 +686,14 @@ food_eat proc near
     mul bl
     add dx,ax
     mov ax,dx
+    mov bl,select[0]
+    cmp bl,0
+    je people_game
+    mov dx,ai_snake_head[0]
+    jmp conti_go
+people_game:
     mov dx,snake_head[0]
+conti_go:
     cmp ax,dx
     je eat
     mov dl,0
@@ -546,8 +739,16 @@ is_alive endp
 ;--------------------------------------------------
 ;让蛇朝着snake_dir的方向走
 go_snake proc near
+    mov al,select[0]
+    cmp al,1
+    je ai_init
     mov bl,snake_dir[0]
     mov ax,snake_head[0]
+    jmp go
+ai_init:
+    mov bl,ai_snake_dir[0]
+    mov ax,ai_snake_head[0]
+go:
     cmp bl,0
     je up
     cmp bl,1
@@ -563,7 +764,7 @@ up:
     jmp food
 down:
     cmp ax,1008
-    je relay
+    jg relay
     add ax,84
     jmp food
 left:    
@@ -587,8 +788,16 @@ right:
 relay:
     jmp snake_over
 food:
+    mov bl,select[0]
+    cmp bl,0
+    je p_game
+    mov bx,ai_snake_head[0]
+    mov ai_snake_head[0],ax
+    jmp c_go
+p_game:
     mov bx,snake_head[0]
     mov snake_head[0],ax
+c_go:
     mov si,ax
     push bx
     mov bx,offset s_locate
@@ -631,7 +840,14 @@ go_snake endp
 ;--------------------------------------------------
 ;画蛇
 draw_snake proc near
+    mov al,select[0]
+    cmp al,0
+    je peo_game
+    mov ax,ai_snake_head[0]
+    jmp con_go
+peo_game:
     mov ax,snake_head[0]
+con_go:
     push ax
     mov bl,84
     div bl
@@ -706,6 +922,7 @@ clear_tail proc near
     div bl
     mov coordinate_x,al
     call locate
+    
     mov es,value_temp[0]
     mov si,value_temp[2]
     mov dl,' '
@@ -732,7 +949,7 @@ food_begin:
     and ah,3
     mov dl,43
     div dl
-    mov bx,offset coordinate_x
+    mov bx,offset coordinate_x    
     mov food_x[0],ah
     mov [bx],ah
     
@@ -872,61 +1089,59 @@ display_choose proc near
     push ax
     push bx
     push cx
-	push dx
-	push si
-	push di
-	mov cx, 3
-ag:
-	mov ax, 0b8f1h
-	mov es, ax
+    push dx
+    push si
+    push di
+    mov cx, 3
+three_input:
+    mov ax, 0b8f1h
+    mov es, ax
     mov bx, offset info
-	mov si, 0h
-	push cx
-	xor cx, cx
+    mov si, 0h
+    push cx
+    xor cx, cx
     mov cx, 46
-y:
-	mov al, [bx]
-	mov es:[si], al
-	mov di, 0h
-	mov ah, [di]
-	mov es:[si + 1], ah
-	inc bx
-	add si, 2
-	loop y
-	pop cx
-	mov ah, 2
-	mov bh, 0
-	mov dh, 24
-	mov dl, 54
-	int 10h
+print_line:
+    mov al, [bx]
+    mov es:[si], al
+    mov di, 0h
+    mov ah, [di]
+    mov es:[si + 1], ah
+    inc bx
+    add si, 2
+    loop print_line
+    pop cx
+    mov ah, 2
+    mov bh, 0
+    mov dh, 24
+    mov dl, 54
+    int 10h
     mov ah, 01h
     int 21h
     sub al, 30h
-	cmp al, 1
-	je p1
-	cmp al, 2
-	je p1
-	cmp al, 3
-	je p1
-	cmp al, 4
-	je p2
-	cmp al, 5
-	je p3
-	loop ag
-	jmp p2
-p1:
+    cmp al, 1
+    je level_record
+    cmp al, 2
+    je level_record
+    cmp al, 3
+    je level_record
+    cmp al, 4
+    je game_choose_record
+    cmp al, 5
+    jmp start
+    loop three_input
+	
+game_choose_record:
+    mov ax, 4c00h
+    int 21h
+level_record:
     mov level[0], al
-	jmp end_show
-p2:
-	mov ax, 4c00h
-	int 21h
-p3:
-	mov game_choose, al
+    jmp end_show
 end_show:   
-	pop di
-	pop si
-	pop dx
-	pop cx
+    pop di
+    pop si
+    pop dx
+    pop cx
     pop bx
     pop ax
 
