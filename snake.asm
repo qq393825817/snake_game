@@ -96,9 +96,9 @@ data segment
     game_flag   db    2 ;0表示死亡，1表示程序退出，2表示胜利
     game_choose db    1
     value_temp  dw    546    dup(0) ;存放临时数据
-	ai_temp     dw    0
+    ai_temp     dw    0
     queue_head  dw    0
-	queue_tail  dw    0
+    queue_tail  dw    0
     score       dw    0 ;表示所得分数
     char_score  db    0,0,0 ;表示在屏幕上显示
     food_x      db    (?) ;存放食物坐标
@@ -318,12 +318,12 @@ loop0:
 
     mov es:[2],al
 
-	mov ax,2
-	mov s_locate[0],ax
-	mov ax,4
-	mov s_locate[2],ax
-	mov ax,2048
-	mov s_locate[4],ax
+    mov ax,2
+    mov s_locate[0],ax
+    mov ax,4
+    mov s_locate[2],ax
+    mov ax,2048
+    mov s_locate[4],ax
     ret
 init_menu endp
 ;--------------------------------------------------
@@ -349,13 +349,14 @@ ingame proc near
     mov dl,0
     mov eat_food[0],dl
 ai_game:
-	mov al,ai_death
-	cmp al,1
-	je clear_ai
+    mov al,1
+    mov select[0],al
+    mov al,ai_death
+    cmp al,1
+    je clear_ai
     call search_path
-;    call go_snake
-;   call draw_snake
-	
+    call go_snake
+    call draw_snake
     mov dl,eat_food[0]
     cmp dl,0
     je ingame
@@ -364,28 +365,28 @@ ai_game:
     mov eat_food[0],dl
     jmp ingame
 clear_ai:
-	call clear_ai_snake
+    call clear_ai_snake
 end_ingame:
     call end_deal
     ret
 ingame endp
 ;--------------------------------------------------
 clear_ai_snake proc near
-	ret
+    ret
 clear_ai_snake endp
 ;--------------------------------------------------
-search_path proc near	
-	mov al,84
+search_path proc near    
+    mov al,84
     mov ch,food_y
     mul ch
-	mov di,ax
+    mov di,ax
     mov cl,food_x
-	mov al,2
-	mul al
+    mov al,2
+    mul cl
     add di,ax
     mov bx,ai_snake_head[0]
     mov ax,bx
-	mov ai_temp[0],ax
+    mov ai_temp[0],ax
 BFS:
     cmp ax,di
     je relay_dir
@@ -393,165 +394,165 @@ BFS:
     jge ai_up
     jmp ai_snake_down
 ai_up:
-	mov ax,ai_temp[0]
+    mov ax,ai_temp[0]
     sub ax,84
-	mov si,ax
+    mov si,ax
     mov dx,s_locate[si]
     cmp dx,1
     je queue_up
     jmp ai_snake_down
 queue_up:
-	mov bx,queue_tail[0]
-	mov si,ax
-	mov dx,3
-	mov s_locate[si],dx
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,3
+    mov s_locate[si],dx
     mov value_temp[bx],ax
-	add bx,2
-	mov queue_tail[0],bx
+    add bx,2
+    mov queue_tail[0],bx
     mov bl,0
     mov ai_death[0],bl
 ai_snake_down:
-	mov ax,ai_temp[0]
+    mov ax,ai_temp[0]
     cmp ax,1008
     jb ai_down
     jmp ai_snake_left
 relay_dir:
-	jmp search_dir
+    jmp search_dir
 ai_down:
-	mov ax,ai_temp[0]
+    mov ax,ai_temp[0]
     add ax,84
-	mov si,ax
+    mov si,ax
     mov dx,s_locate[si]
     cmp dx,1
     je queue_down
     jmp ai_snake_left
-queue_down:    	
-	mov bx,queue_tail[0]
-	mov si,ax
-	mov dx,5
-	mov s_locate[si],dx
+queue_down:        
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,5
+    mov s_locate[si],dx
     mov value_temp[bx],ax
-	add bx,2
-	mov queue_tail[0],bx
+    add bx,2
+    mov queue_tail[0],bx
     mov bl,0
     mov ai_death[0],bl
 ai_snake_left:
     mov ax,ai_temp[0]
     mov bl,84
-	div bl
+    div bl
     cmp ah,0
     jg ai_left
     jmp ai_snake_right
 ai_left:
     mov ax,ai_temp[0]
     sub ax,2
-	mov si,ax
+    mov si,ax
     mov dx,s_locate[si]
     cmp dx,1
     je queue_left
     jmp ai_snake_right
-queue_left:	
-	mov bx,queue_tail[0]
-	mov si,ax
-	mov dx,7
-	mov s_locate[si],dx
+queue_left:    
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,7
+    mov s_locate[si],dx
     mov value_temp[bx],ax
-	add bx,2
-	mov queue_tail[0],bx
+    add bx,2
+    mov queue_tail[0],bx
     mov bl,0
     mov ai_death[0],bl
 ai_snake_right:
-	mov ax,ai_temp[0]
+    mov ax,ai_temp[0]
     mov dx,ax
     mov bl,84
-	div bl
+    div bl
     cmp ah,82
     jb ai_right
     jmp ai_end
 ai_right:
-	mov ax,ai_temp[0]
+    mov ax,ai_temp[0]
     add ax,2
-	mov si,ax
+    mov si,ax
     mov dx,s_locate[si]
     cmp dx,1
     je queue_right
     jmp ai_end
-queue_right:	
-	mov bx,queue_tail[0]
-	mov si,ax
-	mov dx,9
-	mov s_locate[si],dx
+queue_right:    
+    mov bx,queue_tail[0]
+    mov si,ax
+    mov dx,9
+    mov s_locate[si],dx
     mov value_temp[bx],ax
-	add bx,2
-	mov queue_tail[0],bx
+    add bx,2
+    mov queue_tail[0],bx
     mov bl,0
     mov ai_death[0],bl
 ai_end:
     mov bx,queue_head[0]
-	mov ax,value_temp[bx]
-	mov ai_temp[0],ax
-	add bx,2
-	mov queue_head[0],bx
-	jmp BFS
+    mov ax,value_temp[bx]
+    mov ai_temp[0],ax
+    add bx,2
+    mov queue_head[0],bx
+    jmp BFS
 search_dir:
-	cmp di,ai_snake_head[0]
-	je search_end
-	mov ax,s_locate[di]
-	cmp ax,3
-	je back_up
-	cmp ax,5
-	je back_down
-	cmp ax,7
-	je back_left
-	cmp ax,9
-	je back_right
+    cmp di,ai_snake_head[0]
+    je search_end
+    mov ax,s_locate[di]
+    cmp ax,3
+    je back_up
+    cmp ax,5
+    je back_down
+    cmp ax,7
+    je back_left
+    cmp ax,9
+    je back_right
 back_up:
-	add di,84
-	mov al,0
-	mov ai_snake_dir[0],al
-	jmp search_dir
+    add di,84
+    mov al,0
+    mov ai_snake_dir[0],al
+    jmp search_dir
 back_down:
-	sub di,84
-	mov al,1
-	mov ai_snake_dir,al
-	jmp search_dir
+    sub di,84
+    mov al,1
+    mov ai_snake_dir[0],al
+    jmp search_dir
 back_left:
-	add di,2
-	mov al,2
-	mov ai_snake_dir,al
-	jmp search_dir
+    add di,2
+    mov al,2
+    mov ai_snake_dir[0],al
+    jmp search_dir
 back_right:
-	sub di,2
-	mov al,3
-	mov ai_snake_dir,al
-	jmp search_dir
+    sub di,2
+    mov al,3
+    mov ai_snake_dir[0],al
+    jmp search_dir
 search_end:
-	mov ax,0
-	mov queue_head[0],ax
-	mov queue_tail[0],ax
-	mov cx,1090
+    mov ax,0
+    mov queue_head[0],ax
+    mov queue_tail[0],ax
+    mov cx,1090
 initial_value:
-	mov si,cx
-	mov ax,s_locate[si]
-	cmp ax,3
-	je initial
-	cmp ax,5
-	je initial
-	cmp ax,7
-	je initial
-	cmp ax,9
-	je initial
-	cmp cx,0
-	je initial_end
-	sub cx,2
-	jmp initial_value
+    mov si,cx
+    mov ax,s_locate[si]
+    cmp ax,3
+    je initial
+    cmp ax,5
+    je initial
+    cmp ax,7
+    je initial
+    cmp ax,9
+    je initial
+    cmp cx,0
+    je initial_end
+    sub cx,2
+    jmp initial_value
 initial:
-	mov ax,1
-	mov s_locate[si],ax
-	cmp cx,0
-	je initial_end
-	sub cx,2
-	jmp initial_value
+    mov ax,1
+    mov s_locate[si],ax
+    cmp cx,0
+    je initial_end
+    sub cx,2
+    jmp initial_value
 initial_end:
     ret
 search_path endp
@@ -694,7 +695,14 @@ food_eat proc near
     mul bl
     add dx,ax
     mov ax,dx
+    mov bl,select[0]
+    cmp bl,0
+    je people_game
+    mov dx,ai_snake_head[0]
+    jmp conti_go
+people_game:
     mov dx,snake_head[0]
+conti_go:
     cmp ax,dx
     je eat
     mov dl,0
@@ -789,8 +797,16 @@ right:
 relay:
     jmp snake_over
 food:
+    mov bl,select[0]
+    cmp bl,0
+    je p_game
+    mov bx,ai_snake_head[0]
+    mov ai_snake_head[0],ax
+    jmp c_go
+p_game:
     mov bx,snake_head[0]
     mov snake_head[0],ax
+c_go:
     mov si,ax
     push bx
     mov bx,offset s_locate
@@ -833,7 +849,14 @@ go_snake endp
 ;--------------------------------------------------
 ;画蛇
 draw_snake proc near
+    mov al,select[0]
+    cmp al,0
+    je peo_game
+    mov ax,ai_snake_head[0]
+    jmp con_go
+peo_game:
     mov ax,snake_head[0]
+con_go:
     push ax
     mov bl,84
     div bl
@@ -926,6 +949,7 @@ food_begin:
     mov dl,13
     div dl
     mov bx,offset coordinate_y
+;    mov ah,0                    ;;;;;;;;
     mov food_y[0],ah
     mov [bx],ah    
     
@@ -935,7 +959,8 @@ food_begin:
     and ah,3
     mov dl,43
     div dl
-    mov bx,offset coordinate_x
+    mov bx,offset coordinate_x    
+;    mov ah,3                   ;;;;;;;;;
     mov food_x[0],ah
     mov [bx],ah
     
