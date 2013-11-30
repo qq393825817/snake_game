@@ -85,8 +85,17 @@ data segment
     success17  db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
     success18  db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
-    mus         dw    262, 294, 300, -1 ;音频信息——节拍和频率
-    time        dw    2, 2, 2
+   mus          dw    262, 262, 294, 262, 349 ;音频信息——节拍和频率
+	            dw    330, 262, 262, 294, 262
+				dw    392, 349, 262, 262, 523
+				dw    440, 349, 262, 262, 446
+				dw    466, 440, 262, 392, 349
+				dw    -1
+    time        dw    1, 1, 1, 1, 1
+	            dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
+				dw    1, 1, 1, 1, 1
     music_si    dw    0
     music_di    dw    0
     select      db    0 ;0表示玩家自己控制的蛇,1表示AI蛇
@@ -142,29 +151,29 @@ start:
 main endp
 ;--------------------------------------------------
 ;music open
-music:
+music proc near
     push cx
     push bx
-p:    
+init_mus:    
     mov si,music_si[0]
     mov di,music_di[0]
     mov cx,mus[si]
     cmp cx, -1
-    je p
+    je init_mus
     mov bx,time[di]
     call sound
     add si, 2            ; 取下一频率值
     add di, 2            ; 取下一时间节拍值
-    cmp si, 4
-    jne q
+    cmp si, 50
+    jne next_step
     mov si, 0
     mov di, 0
-q:    
+next_step:    
     mov music_di[0], di
     mov music_si[0], si
     pop bx
     pop cx
-    ret
+	ret
 
 sound:
     push dx
@@ -182,45 +191,27 @@ sound:
     mov ah, al
     or al, 3
     out 61h, al
-l:
+times_delay:			
     push dx
     push ax
-    mov dx, 8h
-    mov ax, 0f05h
+    mov dx, 08h
+    mov ax, 0105h
 
-s:
+per_delay:
     sub ax, 1
     sbb dx, 0            ; 这条语句表示只要 ax 不错位，那么 CF 就等于 0，dx - CF = dx 不影响 dx 的值。当 ax 减没了，错位了，dx 才减少 1
-    jnz s
+    jnz per_delay
     pop ax
     pop dx
     dec bx
-    jnz l
+    jnz times_delay
     mov al, ah
     out 61h, al
     pop dx
     ret
+music endp
 ;--------------------------------------------------
 wait_game proc near 
-    mov al,level[0]
-    push ax
-    mov ah,2ch
-    int 21h
-    pop ax
-    add dh,al
-    mov bl,dh
-    cmp bl,3ch
-    jb wait_time
-    sub bl,60
-wait_time:
-    push bx
-    mov ah,2ch
-    int 21h
-    pop bx
-    cmp bl,dh
-    je wait_end
-    jmp wait_time
-wait_end:
     mov ah,1
     int 16h
     jz wait_quit
@@ -324,6 +315,16 @@ loop0:
     mov s_locate[2],ax
     mov ax,2048
     mov s_locate[4],ax
+
+	mov al,2
+	mov game_flag[0],al
+	mov ax,0
+	mov score[0],ax
+	mov ax,0
+	mov ai_snake_head[0],ax
+	mov ax,440
+	mov snake_head[0],ax
+
     ret
 init_menu endp
 ;--------------------------------------------------
@@ -333,7 +334,7 @@ ingame proc near
     mov al,0
     mov select[0],al
     call go_snake 
-;    call music
+    call music
     call is_alive
     mov bx,offset game_flag
     mov dl,[bx]
@@ -353,7 +354,7 @@ ai_game:
     mov select[0],al
     mov al,ai_death
     cmp al,1
-    je clear_ai
+    je clear_snake
     call search_path
     call go_snake
     call draw_snake
@@ -364,16 +365,41 @@ ai_game:
     mov dl,0
     mov eat_food[0],dl
     jmp ingame
-clear_ai:
-    call clear_ai_snake
 end_ingame:
+	call clear_snake
     call end_deal
     ret
 ingame endp
 ;--------------------------------------------------
-clear_ai_snake proc near
-    ret
-clear_ai_snake endp
+clear_snake proc near
+	mov bx,snake_head[0]
+clear_s:
+	cmp bx,2048
+	je clear_end
+	mov ax,s_locate[bx]
+	mov cx,1
+	mov s_locate[bx],cx
+	mov bx,ax
+	jmp clear_s
+clear_end:
+	mov cx,1
+	mov s_locate[bx],cx
+	jmp clear_snake_tail
+	mov bx,ai_snake_head[0]
+clear_ai_s:
+	cmp bx,2048
+	je clear_ai_end
+	mov ax,s_locate[bx]
+	mov cx,1
+	mov s_locate[bx],cx
+	mov bx,ax
+	jmp clear_ai_s
+clear_ai_end:
+	mov cx,1
+	mov s_locate[bx],cx
+clear_snake_tail:
+	ret
+clear_snake endp
 ;--------------------------------------------------
 search_path proc near    
     mov al,84
@@ -558,12 +584,6 @@ initial_end:
 search_path endp
 ;--------------------------------------------------
 end_deal proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    push di
     mov bx, offset game_flag
     mov dl, [bx]
     mov cx, 13h                ; all of 19 line and loop 19 times
@@ -628,12 +648,6 @@ loop02:
     loop row2
     
     call display_choose
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
     ret
 end_deal endp
 ;--------------------------------------------------
@@ -949,7 +963,6 @@ food_begin:
     mov dl,13
     div dl
     mov bx,offset coordinate_y
-;    mov ah,0                    ;;;;;;;;
     mov food_y[0],ah
     mov [bx],ah    
     
@@ -960,7 +973,6 @@ food_begin:
     mov dl,43
     div dl
     mov bx,offset coordinate_x    
-;    mov ah,3                   ;;;;;;;;;
     mov food_x[0],ah
     mov [bx],ah
     
@@ -1040,11 +1052,6 @@ clear endp
 ;--------------------------------------------------
 ;显示信息    
 display proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    
     mov cx, 13h
     mov ax, 0b81fh
     mov es, ax    
@@ -1086,25 +1093,13 @@ loop01:
     mov es, ax
     add bx, 3
     loop row1
-
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    
     ret
 display endp
 ;--------------------------------------------------
 ;登陆界面选项处理
 display_choose proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    push di
     mov cx, 3
-ag:
+three_input:
     mov ax, 0b8f1h
     mov es, ax
     mov bx, offset info
@@ -1112,7 +1107,7 @@ ag:
     push cx
     xor cx, cx
     mov cx, 46
-y:
+print_line:
     mov al, [bx]
     mov es:[si], al
     mov di, 0h
@@ -1120,7 +1115,7 @@ y:
     mov es:[si + 1], ah
     inc bx
     add si, 2
-    loop y
+    loop print_line
     pop cx
     mov ah, 2
     mov bh, 0
@@ -1131,31 +1126,26 @@ y:
     int 21h
     sub al, 30h
     cmp al, 1
-    je p1
+    je level_record
     cmp al, 2
-    je p1
+    je level_record
     cmp al, 3
-    je p1
+    je level_record
     cmp al, 4
-    je p2
+    je game_choose_record
     cmp al, 5
-    je p2
-    loop ag
+    je restart
+    loop three_input
+restart:
+	mov game_flag[0],2
+	jmp start
+game_choose_record:
     mov ax, 4c00h
     int 21h
-p1:
+level_record:
     mov level[0], al
     jmp end_show
-p2:
-    mov game_choose, al
 end_show:   
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-
     ret
 display_choose endp
 ;--------------------------------------------------
