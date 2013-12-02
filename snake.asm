@@ -85,7 +85,7 @@ data segment
     success17  db    0ah, 0dh, "*                1 : quit     2 : restart                  #$";|
     success18  db    0ah, 0dh, "************************************************************$";|
 ;------------------------------------------------------------------------------------------------
-   mus         dw    262, 262, 294, 262, 349 ;音频信息——节拍和频率
+   mus          dw    262, 262, 294, 262, 349 ;音频信息——节拍和频率
 	            dw    330, 262, 262, 294, 262
 				dw    392, 349, 262, 262, 523
 				dw    440, 349, 262, 262, 446
@@ -194,7 +194,7 @@ sound:
 times_delay:			
     push dx
     push ax
-    mov dx, 8h
+    mov dx, 08h
     mov ax, 0105h
 
 per_delay:
@@ -315,6 +315,16 @@ loop0:
     mov s_locate[2],ax
     mov ax,2048
     mov s_locate[4],ax
+
+	mov al,2
+	mov game_flag[0],al
+	mov ax,0
+	mov score[0],ax
+	mov ax,0
+	mov ai_snake_head[0],ax
+	mov ax,440
+	mov snake_head[0],ax
+
     ret
 init_menu endp
 ;--------------------------------------------------
@@ -344,7 +354,7 @@ ai_game:
     mov select[0],al
     mov al,ai_death
     cmp al,1
-    je clear_ai
+    je clear_snake
     call search_path
     call go_snake
     call draw_snake
@@ -355,16 +365,41 @@ ai_game:
     mov dl,0
     mov eat_food[0],dl
     jmp ingame
-clear_ai:
-    call clear_ai_snake
 end_ingame:
+	call clear_snake
     call end_deal
     ret
 ingame endp
 ;--------------------------------------------------
-clear_ai_snake proc near
-    ret
-clear_ai_snake endp
+clear_snake proc near
+	mov bx,snake_head[0]
+clear_s:
+	cmp bx,2048
+	je clear_end
+	mov ax,s_locate[bx]
+	mov cx,1
+	mov s_locate[bx],cx
+	mov bx,ax
+	jmp clear_s
+clear_end:
+	mov cx,1
+	mov s_locate[bx],cx
+	jmp clear_snake_tail
+	mov bx,ai_snake_head[0]
+clear_ai_s:
+	cmp bx,2048
+	je clear_ai_end
+	mov ax,s_locate[bx]
+	mov cx,1
+	mov s_locate[bx],cx
+	mov bx,ax
+	jmp clear_ai_s
+clear_ai_end:
+	mov cx,1
+	mov s_locate[bx],cx
+clear_snake_tail:
+	ret
+clear_snake endp
 ;--------------------------------------------------
 search_path proc near    
     mov al,84
@@ -549,12 +584,6 @@ initial_end:
 search_path endp
 ;--------------------------------------------------
 end_deal proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    push di
     mov bx, offset game_flag
     mov dl, [bx]
     mov cx, 13h                ; all of 19 line and loop 19 times
@@ -619,12 +648,6 @@ loop02:
     loop row2
     
     call display_choose
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
     ret
 end_deal endp
 ;--------------------------------------------------
@@ -1029,11 +1052,6 @@ clear endp
 ;--------------------------------------------------
 ;显示信息    
 display proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    
     mov cx, 13h
     mov ax, 0b81fh
     mov es, ax    
@@ -1075,23 +1093,11 @@ loop01:
     mov es, ax
     add bx, 3
     loop row1
-
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    
     ret
 display endp
 ;--------------------------------------------------
 ;登陆界面选项处理
 display_choose proc near
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    push di
     mov cx, 3
 three_input:
     mov ax, 0b8f1h
@@ -1128,9 +1134,11 @@ print_line:
     cmp al, 4
     je game_choose_record
     cmp al, 5
-    jmp start
+    je restart
     loop three_input
-	
+restart:
+	mov game_flag[0],2
+	jmp start
 game_choose_record:
     mov ax, 4c00h
     int 21h
@@ -1138,13 +1146,6 @@ level_record:
     mov level[0], al
     jmp end_show
 end_show:   
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-
     ret
 display_choose endp
 ;--------------------------------------------------
